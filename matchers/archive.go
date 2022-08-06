@@ -36,7 +36,7 @@ var (
 	TypeDcm    = newType("dcm", "application/dicom")
 	TypeIso    = newType("iso", "application/x-iso9660-image")
 	TypeMachO  = newType("macho", "application/x-mach-binary") // Mach-O binaries have no common extension.
-	TypeTgs    = newType("tgs", "application/octet-stream")    // TGS binaries have no common mimetype.
+	TypeTgs    = newType("tgs", "application/octet-stream")    // TGS binaries have no common  mimetype.
 )
 
 var Archive = Map{
