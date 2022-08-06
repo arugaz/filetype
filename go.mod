@@ -1,3 +1,3 @@
-module github.com/h2non/filetype
+module github.com/arugaz/filetype
 
-go 1.13
+go 1.18

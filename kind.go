@@ -1,8 +1,8 @@
 package filetype
 
 import (
-	"github.com/h2non/filetype/matchers"
-	"github.com/h2non/filetype/types"
+	"github.com/arugaz/filetype/matchers"
+	"github.com/arugaz/filetype/types"
 )
 
 // Image tries to match a file as image type
