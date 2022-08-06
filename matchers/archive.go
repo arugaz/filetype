@@ -36,6 +36,7 @@ var (
 	TypeDcm    = newType("dcm", "application/dicom")
 	TypeIso    = newType("iso", "application/x-iso9660-image")
 	TypeMachO  = newType("macho", "application/x-mach-binary") // Mach-O binaries have no common extension.
+	TypeTgs    = newType("tgs", "application/octet-stream")
 )
 
 var Archive = Map{
@@ -67,6 +68,7 @@ var Archive = Map{
 	TypeDcm:    Dcm,
 	TypeIso:    Iso,
 	TypeMachO:  MachO,
+	TypeTgs:    Tgs,
 }
 
 var (
@@ -187,25 +189,29 @@ func MachO(buf []byte) bool {
 		(buf[0] == 0xCA && buf[1] == 0xFE && buf[2] == 0xBA && buf[3] == 0xBE))
 }
 
+func Tgs(buf []byte) bool {
+	return len(buf) > 11 && buf[10] == 0xED && (buf[11] == 0x5D || buf[11] == 0x5B || buf[11] == 0x7B || buf[11] == 0x7D)
+}
+
 // Zstandard compressed data is made of one or more frames.
 // There are two frame formats defined by Zstandard: Zstandard frames and Skippable frames.
 // See more details from https://tools.ietf.org/id/draft-kucherawy-dispatch-zstd-00.html#rfc.section.2
 func Zst(buf []byte) bool {
-  if compareBytes(buf, zstdMagic, 0) {
-    return true
-  } else {
+	if compareBytes(buf, zstdMagic, 0) {
+		return true
+	} else {
 		// skippable frames
-    if len(buf) < 8 {
-      return false
-    }
-    if binary.LittleEndian.Uint32(buf[:4]) & ZstdMagicSkippableMask == ZstdMagicSkippableStart {
-      userDataLength := binary.LittleEndian.Uint32(buf[4:8])
-      if len(buf) < 8 + int(userDataLength) {
-        return false
-      }
-      nextFrame := buf[8+userDataLength:]
-      return Zst(nextFrame)
-    }
-    return false
-  }
+		if len(buf) < 8 {
+			return false
+		}
+		if binary.LittleEndian.Uint32(buf[:4])&ZstdMagicSkippableMask == ZstdMagicSkippableStart {
+			userDataLength := binary.LittleEndian.Uint32(buf[4:8])
+			if len(buf) < 8+int(userDataLength) {
+				return false
+			}
+			nextFrame := buf[8+userDataLength:]
+			return Zst(nextFrame)
+		}
+		return false
+	}
 }
